@@ -1,5 +1,10 @@
 
   GET|HEAD   / ........................................................................................................................................................................................................ 
+  GET|HEAD   _debugbar/assets/javascript .................................................................................................................. debugbar.assets.js › Barryvdh\Debugbar › AssetController@js
+  GET|HEAD   _debugbar/assets/stylesheets ............................................................................................................... debugbar.assets.css › Barryvdh\Debugbar › AssetController@css
+  DELETE     _debugbar/cache/{key}/{tags?} ......................................................................................................... debugbar.cache.delete › Barryvdh\Debugbar › CacheController@delete
+  GET|HEAD   _debugbar/clockwork/{id} ........................................................................................................ debugbar.clockwork › Barryvdh\Debugbar › OpenHandlerController@clockwork
+  GET|HEAD   _debugbar/open ................................................................................................................... debugbar.openhandler › Barryvdh\Debugbar › OpenHandlerController@handle
   POST       _ignition/execute-solution ................................................................................................. ignition.executeSolution › Spatie\LaravelIgnition › ExecuteSolutionController
   GET|HEAD   _ignition/health-check ............................................................................................................. ignition.healthCheck › Spatie\LaravelIgnition › HealthCheckController
   POST       _ignition/update-config .......................................................................................................... ignition.updateConfig › Spatie\LaravelIgnition › UpdateConfigController
@@ -12,6 +17,7 @@
   POST       forgot-password .................................................................................................................................. password.email › Auth\PasswordResetLinkController@store
   GET|HEAD   inertia-test ............................................................................................................................................................................................. 
   GET|HEAD   inertia/index ................................................................................................................................................ inertia.index › InertiaTestController@index
+  GET|HEAD   inertia/show/{id} .............................................................................................................................................. inertia.show › InertiaTestController@show
   GET|HEAD   login ................................................................................................................................................. login › Auth\AuthenticatedSessionController@create
   POST       login .......................................................................................................................................................... Auth\AuthenticatedSessionController@store
   POST       logout .............................................................................................................................................. logout › Auth\AuthenticatedSessionController@destroy
@@ -23,5 +29,5 @@
   GET|HEAD   verify-email ....................................................................................................................... verification.notice › Auth\EmailVerificationPromptController@__invoke
   GET|HEAD   verify-email/{id}/{hash} ....................................................................................................................... verification.verify › Auth\VerifyEmailController@__invoke
 
-                                                                                                                                                                                                    Showing [23] routes
+                                                                                                                                                                                                    Showing [29] routes
 
