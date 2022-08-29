@@ -42,11 +42,11 @@ Inertia<br>
 クライアントサイド<br>
 
 Laravel Balde<br>
-  <a href="">リンク</a> <br>
+  `<a href="">リンク</a>` <br>
   ページ内全ての情報を再読み込みする HTML
 
 Inertia
-  <Link href=""> <br>
+  `<Link href="">` <br>
   部分的に読み込む JSON
   読み込む量が少ない = 描画速度が早い
   SPA（Single Page Application）<br>
