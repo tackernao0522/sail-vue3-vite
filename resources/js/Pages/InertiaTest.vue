@@ -4,6 +4,6 @@ import { Link } from "@inertiajs/inertia-vue3";
 
 <template>
   Inertiaテストです。<br />
-  <a href="/">aタグ経由です</a> <br>
+  <a href="/">aタグ経由です</a> <br />
   <Link href="/">Link経由です</Link>
 </template>
