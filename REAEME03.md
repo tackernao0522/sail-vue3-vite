@@ -111,3 +111,99 @@ import { Link } from "@inertiajs/inertia-vue3";
   <Link href="/">Link経由です</Link>
 </template>
 ```
+
+## 15. Link 名前付きルート
+
+
+### 名前付きルート　その1
+
+ziggyラブラリにより名前付きルートが使える<br>
+
++ `routes/web.php`を編集<br>
+
+```php:web.php
+<?php
+
+use App\Http\Controllers\InertiaTestController;; // 追加
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/inertia-test', function () {
+    return Inertia::render('InertiaTest');
+});
+
+Route::get('/inertia/index', [InertiaController::class, 'index'])->name('inertia.index'); // 追加
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+require __DIR__ . '/auth.php';
+```
++ `$ php artisan make:controller InertiaTestController`を実行<br>
+
++ `app/Http/Controllers/InertiaTestController.php`を編集<br>
+
+```php:InertiaController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class InertiaTestController extends Controller
+{
+    public function index ()
+    {
+        return Inertia::render('Inertia/Index');
+    }
+}
+```
+
++ `mkdir resources/js/Pages/Inertia && touch $_/Index.vue`を実行<br>
+
++ `resources/js/Pages/Inertia/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+</script>
+
+<template>ああああああ</template>
+```
+
++ `resources/js/Pages/InertiaTest.vue`を編集<br>
+
+```vue:InertiaTest.vue
+<script setup>
+import { Link } from "@inertiajs/inertia-vue3";
+</script>
+
+<template>
+  Inertiaテストです。<br />
+  <a href="/">aタグ経由です</a> <br />
+  <Link href="/">Link経由です</Link> <br />
+  <Link :href="route('inertia.index')">名前付きルートの確認です</Link>
+</template>
+```
