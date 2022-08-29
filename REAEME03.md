@@ -50,3 +50,64 @@ Inertia<br>
   部分的に読み込む JSON<br>
   読み込む量が少ない = 描画速度が早い<br>
   SPA（Single Page Application）<br>
+
+## 14. aタグとLinkコンポーネントの違い
+
+### Linkを確認してみる
+
++ `routes/web.php`を編集<br>
+
+```php:web.php
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+// 追加
+Route::get('/inertia-test', function () {
+    return Inertia::render('InertiaTest');
+});
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+require __DIR__ . '/auth.php';
+```
+
++ `$ touch resources/js/pages/InertiaTest.vue`を実行<br>
+
++ `resources/js/Pages/InertiaTest.vue`を編集<br>
+
+```vue:InertiaTest.vue
+<script setup>
+import { Link } from "@inertiajs/inertia-vue3";
+</script>
+
+<template>
+  Inertiaテストです。<br />
+  <a href="/">aタグ経由です</a> <br>
+  <Link href="/">Link経由です</Link>
+</template>
+```
