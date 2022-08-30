@@ -132,3 +132,31 @@ class InertiaTestController extends Controller
 ```
 
 + `$ touch resources/js/Pages/Inertia/Create.vue`を実行<br>
+
+## 21. フォーム（create）その2
+
++ `resources/js/Pages/Inertia/Create.vue`を編集<br>
+
+```vue:Create.vue
+<script setup>
+import { Inertia } from "@inertiajs/inertia";
+import { reactive } from "vue";
+
+const form = reactive({
+  title: null,
+  content: null,
+});
+
+const submitFunction = () => {
+  Inertia.post("/inertia", form);
+};
+</script>
+
+<template>
+  <form @submit.prevent="submitFunction">
+    <input type="text" name="title" v-model="form.title" /><br />
+    <input type="text" name="content" v-model="form.content" /><br />
+    <button>送信</button>
+  </form>
+</template>
+```
