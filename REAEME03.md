@@ -312,3 +312,42 @@ defineProps({
   {{ id }}
 </template>
 ```
+
+## 17. Linkコンポーネントでstore保存 その1
+
+### Linkコンポーネントの属性
+
+```
+Vue-routerのrouter-linkのようにいくつかの属性を設定できる
+
+type="button" // buttonリンク
+
+as="button" // button
+
+method="post" // メソッド変更
+
+:data="{}" // 送信リクエストにデータ追加
+
+オブジェクトかFormDataインスタンス
+
+:headers="{}" 追加するHTTPヘッダー指定
+
+replace History 履歴書書き換え
+
+preserve-state フォーム入力値を維持
+
+preserve-scroll 移動前と同じスクロール位置を保持
+```
+### 部分リロード
+
+```
+:only="{}" // 特定のデータだけ読み込みたい場合
+(通信量が節約される。)
+Laravel側でデータは取得しているので、サーバー側の負荷は変わらない。
+Laravel側も必要な時だけ取得するなら fn()を挟むとok
+return Inertia::render('コンポーネント', [key => fn() => value]);
+```
+
++ `$ php artisan make:model InertiaTest -m`を実行<br>
+
++ `$ php artisan migrate`を実行<br>
