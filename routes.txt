@@ -15,6 +15,7 @@
   POST       email/verification-notification ................................................................................................... verification.send › Auth\EmailVerificationNotificationController@store
   GET|HEAD   forgot-password ............................................................................................................................... password.request › Auth\PasswordResetLinkController@create
   POST       forgot-password .................................................................................................................................. password.email › Auth\PasswordResetLinkController@store
+  POST       inertia ...................................................................................................................................................... inertia.store › InertiaTestController@store
   GET|HEAD   inertia-test ............................................................................................................................................................................................. 
   GET|HEAD   inertia/index ................................................................................................................................................ inertia.index › InertiaTestController@index
   GET|HEAD   inertia/show/{id} .............................................................................................................................................. inertia.show › InertiaTestController@show
@@ -29,5 +30,5 @@
   GET|HEAD   verify-email ....................................................................................................................... verification.notice › Auth\EmailVerificationPromptController@__invoke
   GET|HEAD   verify-email/{id}/{hash} ....................................................................................................................... verification.verify › Auth\VerifyEmailController@__invoke
 
-                                                                                                                                                                                                    Showing [29] routes
+                                                                                                                                                                                                    Showing [30] routes
 
