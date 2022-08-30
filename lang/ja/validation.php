@@ -159,5 +159,8 @@ return [
     |
     */
 
-  'attributes' => [],
+  'attributes' => [
+    'title' => '件名',
+    'content' => '本文'
+  ],
 ];
