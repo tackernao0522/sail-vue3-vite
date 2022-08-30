@@ -253,3 +253,128 @@ const submitFunction = () => {
   </form>
 </template>
 ```
+
+## 24. フラッシュメッセージ
+
++ [Shared data](https://inertiajs.com/shared-data) <br>
+
++ `app/Http/Controllers/InertiaTestController.php`を編集<br>
+
+```php:InertiaTestController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\InertiaTest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class InertiaTestController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Inertia/Index');
+    }
+
+    public function create()
+    {
+        return Inertia::render('Inertia/Create');
+    }
+
+    public function show($id)
+    {
+        // dd($id);
+        return Inertia::render('Inertia/Show', ['id' => $id]);
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate(([
+            'title' => ['required', 'max:20'],
+            'content' => ['required']
+        ]));
+
+        $inertiaTest = new InertiaTest;
+        $inertiaTest->title = $request->title;
+        $inertiaTest->content = $request->content;
+        $inertiaTest->save();
+
+        return to_route('inertia.index')
+            ->with([
+                'message' => '登録しました。'
+            ]);
+    }
+}
+```
+
++ `app/Http/middleware/HandleInertiaRequests.php`を編集<br>
+
+```php:HandleInertiaRequests.php
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+use Tightenco\Ziggy\Ziggy;
+
+class HandleInertiaRequests extends Middleware
+{
+    /**
+     * The root template that is loaded on the first page visit.
+     *
+     * @var string
+     */
+    protected $rootView = 'app';
+
+    /**
+     * Determine the current asset version.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string|null
+     */
+    public function version(Request $request)
+    {
+        return parent::version($request);
+    }
+
+    /**
+     * Define the props that are shared by default.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function share(Request $request)
+    {
+        return array_merge(parent::share($request), [
+            'auth' => [
+                'user' => $request->user(),
+            ],
+            'ziggy' => function () use ($request) {
+                return array_merge((new Ziggy)->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            },
+            // 追加
+            'flash' => [
+                'message' => fn () => $request->session()->get('message')
+            ],
+        ]);
+    }
+}
+```
+
++ `resources/js/Pages/Inertia/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+</script>
+
+<template>
+  <div v-if="$page.props.flash.message" class="bg-blue-300">
+    {{ $page.props.flash.message }}
+  </div>
+  ああああああ
+</template>
+```
