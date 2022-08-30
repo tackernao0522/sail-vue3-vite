@@ -160,3 +160,96 @@ const submitFunction = () => {
   </form>
 </template>
 ```
+
+## 22. バリデーション
+
++ [Inertia Validation](https://inertiajs.com/validation) <br>
+
+```
+クライアントサイド(ブラウザ側)
+  リアルタイムで検知できる
+  しっかり対応するならvee-validateなどのライブラリも要検討
+  開発ツールなどで無効化できる
+
+サーバーサイド
+  Laravelのバリデーションがそのまま使える
+```
+
++ `app/Http/Controllers/InertiaTestController.php`を編集<br>
+
+```php:InertiaTestController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\InertiaTest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class InertiaTestController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Inertia/Index');
+    }
+
+    public function create()
+    {
+        return Inertia::render('Inertia/Create');
+    }
+
+    public function show($id)
+    {
+        // dd($id);
+        return Inertia::render('Inertia/Show', ['id' => $id]);
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate(([
+            'title' => ['required', 'max:20'],
+            'content' => ['required']
+        ]));
+
+        $inertiaTest = new InertiaTest;
+        $inertiaTest->title = $request->title;
+        $inertiaTest->content = $request->content;
+        $inertiaTest->save();
+
+        return to_route('inertia.index');
+    }
+}
+```
+
++ `resources/js/Pages/Inertia/Create.vue`を編集<br>
+
+```vue:Create.vue
+<script setup>
+import { Inertia } from "@inertiajs/inertia";
+import { reactive } from "vue";
+
+defineProps({
+  errors: Object,
+});
+
+const form = reactive({
+  title: null,
+  content: null,
+});
+
+const submitFunction = () => {
+  Inertia.post("/inertia", form);
+};
+</script>
+
+<template>
+  <form @submit.prevent="submitFunction">
+    <input type="text" name="title" v-model="form.title" /><br />
+    <div v-if="errors.title">{{ errors.title }}</div>
+    <input type="text" name="content" v-model="form.content" /><br />
+    <div v-if="errors.content">{{ errors.content }}</div>
+    <button>送信</button>
+  </form>
+</template>
+```
