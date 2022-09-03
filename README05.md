@@ -221,3 +221,39 @@ class InertiaTestController extends Controller
     }
 }
 ```
+
+## 28. スロット・名前付きスロット
+
+### スロット Vue.jsの機能
+
+```
+コンポーネントの中に別のコンポーネントを差し込む
+
+① Auth/Login.vue <= (import) ② Layouts/Guest.vue
+
+①
+<Guest>
+ここは自由に書ける
+</Guest>
+
+②
+<slot />
+
+複数差し込む場合は名前付きスロットなど
+
+③ Dashboard.vue <= (import) ④ Layouts/Authenticated.vue
+
+③
+<Authenticated>
+  <template #header>
+  ここは自由に書ける
+  </template>
+  ここは自由に書ける
+
+</Authenticated>
+
+④
+<slot name="header" />
+
+<slot />
+```
