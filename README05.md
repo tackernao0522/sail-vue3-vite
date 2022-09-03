@@ -1,4 +1,4 @@
-## 26. イベントコールバック（onBefore）
+## 26. イベントコールバック（onBefore） その1
 
 + [Manual visits](https://inertiajs.com/manual-visits) <br>
 
@@ -129,4 +129,95 @@ defineProps({
   {{ id }}<br>
   {{ blog.title }} // 追加
 </template>
+```
+
+## 27. イベントコールバック（onBefore） その2
+
++ `resources/js/Pages/Inertia/Show.vue`を編集<br>
+
+```vue:Show.vue
+<script setup>
+import { Inertia } from '@inertiajs/inertia'; // 追加
+
+defineProps({
+  id: String,
+  blog: Object
+});
+
+// 追加
+const deleteConfirm = id => {
+  // console.log(id)
+  Inertia.delete(`/inertia/${id}`, {
+    onBefore: () => confirm('本当に削除しますか？')
+  })
+}
+</script>
+
+<template>
+  {{ id }}<br>
+  {{ blog.title }}<br>
+  <button @click="deleteConfirm(blog.id)">削除</button> // 追加
+</template>
+```
+
++ `app/Http/Controlers/InertiaTestController.php`を編集<br>
+
+```php:InertiaTestController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\InertiaTest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class InertiaTestController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Inertia/Index', ['blogs' => InertiaTest::all()]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Inertia/Create');
+    }
+
+    public function show($id)
+    {
+        // dd($id);
+        return Inertia::render('Inertia/Show', ['id' => $id, 'blog' => InertiaTest::findOrFail($id)]);
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate(([
+            'title' => ['required', 'max:20'],
+            'content' => ['required']
+        ]));
+
+        $inertiaTest = new InertiaTest;
+        $inertiaTest->title = $request->title;
+        $inertiaTest->content = $request->content;
+        $inertiaTest->save();
+
+        return to_route('inertia.index')
+            ->with([
+                'message' => '登録しました。'
+            ]);
+    }
+
+    // 追加
+    public function delete($id)
+    {
+        $book = InertiaTest::findOrFail($id);
+        $book->delete();
+
+        return to_route('inertia.index')
+            ->with([
+                'message' => '削除しました。'
+            ]);
+    }
+}
 ```
