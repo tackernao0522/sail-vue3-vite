@@ -257,3 +257,110 @@ class InertiaTestController extends Controller
 
 <slot />
 ```
+
+## 29. 他のコンポーネントを使ってみる
+
++ `routes/web.php`を編集<br>
+
+```php:web.php
+<?php
+
+use App\Http\Controllers\InertiaTestController;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/inertia-test', function () {
+    return Inertia::render('InertiaTest');
+});
+
+Route::get('/component-test', function () {
+    return Inertia::render('ComponentTest');
+});
+
+Route::get('/inertia/index', [InertiaTestController::class, 'index'])->name('inertia.index');
+Route::get('/inertia/create', [InertiaTestController::class, 'create'])->name('inertia.create');
+Route::post('/inertia', [InertiaTestController::class, 'store'])->name('inertia.store');
+Route::get('/inertia/show/{id}', [InertiaTestController::class, 'show'])->name('inertia.show');
+Route::delete('/inertia/{id}', [InertiaTestController::class, 'delete'])->name('inertia.delete');
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+require __DIR__ . '/auth.php';
+```
+
++ `$ touch resources/js/Pages/ComponentTest.vue`を実行<br>
+
++ `resources/js/Pages/ComponentTest.vue`を編集<br>
+
+```vue:ComponentTest.vue
+<script setup>
+import GuestLayout from '@/Layouts/Guest.vue'
+import Label from '@/Components/Label.vue'
+import Input from '@/Components/Input.vue'
+</script>
+
+<template>
+  <GuestLayout>
+    何か文字を書く
+  </GuestLayout>
+</template>
+```
+
++ `http://localhost/component-test` にアクセスしてみる<br>
+
++ `resources/js/Pages/ComponentTest.vue`を編集<br>
+
+```vue:ComponentTest.vue
+<script setup>
+import GuestLayout from '@/Layouts/Guest.vue'
+import Label from '@/Components/Label.vue'
+import Input from '@/Components/Input.vue'
+</script>
+
+<template>
+  <GuestLayout>
+    <Label value="件名">タイトル</Label> // Lavel.vueを見てみると valueがあれば"件名"になりなければ<slot />の方のタイトルが表示される
+    <Input></Input>
+  </GuestLayout>
+</template>
+```
+
++ `resources/js/Pages/ComponentTest.vue`を編集<br>
+
+```vue:ComponentTest.vue
+<script setup>
+import GuestLayout from '@/Layouts/Guest.vue'
+import Label from '@/Components/Label.vue'
+import Input from '@/Components/Input.vue'
+</script>
+
+<template>
+  <GuestLayout>
+    <Label value="件名">タイトル</Label>
+    <Input modelValue="初期値が入ります"></Input> // 子のInput.vueへmodelValueを渡している
+  </GuestLayout>
+</template>
+```
