@@ -364,3 +364,27 @@ import Input from '@/Components/Input.vue'
   </GuestLayout>
 </template>
 ```
+
+## 30. defineEmits
+
++ `resources/js/Pages/ComponentTest.vue`を編集<br>
+
+```vue:ComponentTest.vue
+<script setup>
+import GuestLayout from '@/Layouts/Guest.vue'
+import Label from '@/Components/Label.vue'
+import Input from '@/Components/Input.vue'
+
+const emitTest = e => console.log(e)
+</script>
+
+<template>
+  <GuestLayout>
+    <Label value="件名">タイトル</Label>
+    <Input
+      modelValue="初期値が入ります"
+      @update:modelValue="emitTest" // 子のInput.vueから受け取っている
+    ></Input>
+  </GuestLayout>
+</template>
+```
