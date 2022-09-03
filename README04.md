@@ -378,3 +378,103 @@ class HandleInertiaRequests extends Middleware
   ああああああ
 </template>
 ```
+
+## 25. Indexにv-forを追加してみる
+
++ `app/Http/Controlers/InertiaTestController.php`を編集<br>
+
+```php:InertiaTestController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\InertiaTest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class InertiaTestController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Inertia/Index', ['blogs' => InertiaTest::all()]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Inertia/Create');
+    }
+
+    public function show($id)
+    {
+        // dd($id);
+        return Inertia::render('Inertia/Show', ['id' => $id]);
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate(([
+            'title' => ['required', 'max:20'],
+            'content' => ['required']
+        ]));
+
+        $inertiaTest = new InertiaTest;
+        $inertiaTest->title = $request->title;
+        $inertiaTest->content = $request->content;
+        $inertiaTest->save();
+
+        return to_route('inertia.index')
+            ->with([
+                'message' => '登録しました。'
+            ]);
+    }
+}
+```
+
++ `resources/js/Pages/Inertia/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+defineProps({
+  blogs: Array
+})
+</script>
+
+<template>
+  <div v-if="$page.props.flash.message" class="bg-blue-300">
+    {{ $page.props.flash.message }}
+  </div>
+  <ul>
+    <li v-for="blog in blogs" :key="blog.id">
+      件名: {{ blog.title }}
+      本文: {{ blog.content }}
+    </li>
+  </ul>
+  ああああああ
+</template>
+```
+
++ `resources/js/Pages/Inertia/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+import { Link } from '@inertiajs/inertia-vue3'
+defineProps({
+  blogs: Array
+})
+</script>
+
+<template>
+  <div v-if="$page.props.flash.message" class="bg-blue-300">
+    {{ $page.props.flash.message }}
+  </div>
+  <ul>
+    <li v-for="blog in blogs" :key="blog.id">
+      件名:
+      <Link class="text-blue-400" :href="route('inertia.show', { id: blog.id })">{{ blog.title }}</Link>
+      本文: {{ blog.content }}
+    </li>
+  </ul>
+  ああああああ
+</template>
+```
