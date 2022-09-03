@@ -1,16 +1,14 @@
 <script setup>
-import { Inertia } from "@inertiajs/inertia";
 import { reactive } from "vue";
+import { Inertia } from "@inertiajs/inertia";
 
 defineProps({
   errors: Object,
 });
-
 const form = reactive({
   title: null,
   content: null,
 });
-
 const submitFunction = () => {
   Inertia.post("/inertia", form);
 };
