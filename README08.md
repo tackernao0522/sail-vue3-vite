@@ -160,3 +160,190 @@ const storeItem = () => {
     </BreezeAuthenticatedLayout>
 </template>
 ```
+
+## 43. Items フラッシュメッセージ
+
++ `app/Http/Middleware/HandleInertiaRequests.php`を編集<br>
+
+```php:HandleInertiaRequests.php
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+use Tightenco\Ziggy\Ziggy;
+
+class HandleInertiaRequests extends Middleware
+{
+    /**
+     * The root template that is loaded on the first page visit.
+     *
+     * @var string
+     */
+    protected $rootView = 'app';
+
+    /**
+     * Determine the current asset version.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string|null
+     */
+    public function version(Request $request)
+    {
+        return parent::version($request);
+    }
+
+    /**
+     * Define the props that are shared by default.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function share(Request $request)
+    {
+        return array_merge(parent::share($request), [
+            'auth' => [
+                'user' => $request->user(),
+            ],
+            'ziggy' => function () use ($request) {
+                return array_merge((new Ziggy)->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            },
+
+            'flash' => [
+                'message' => fn () => $request->session()->get('message'),
+                'status' => fn () => $request->session()->get('status'), // 追加
+            ]
+        ]);
+    }
+}
+```
+
++ `app/Http/Controllers/ItemController.php`を編集<br>
+
+```php:ItemController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreItemRequest;
+use App\Models\Item;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class ItemController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Items/Index', ['items' => Item::select('id', 'name', 'price', 'is_selling')->get()]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Items/Create');
+    }
+
+    public function store(StoreItemRequest $request)
+    {
+        Item::create([
+            'name' => $request->name,
+            'memo' => $request->memo,
+            'price' => $request->price,
+        ]);
+
+        // 編集
+        return to_route('items.index')
+            ->with([
+                'message' => '登録しました。',
+                'status' => 'success',
+            ]);
+    }
+}
+```
+
++ `$ touch resources/js/Components/FlashMessage.vue`を実行<br>
+
++ `resources/js/Components/FlashMessage.vue`を編集<br>
+
+```vue:FlashMessage.vue
+<script setup>
+</script>
+
+<template>
+  <div v-if="$page.props.flash.status === 'success'" class="bg-blue-300 text-white p-4">
+    {{ $page.props.flash.message }}
+  </div>
+</template>
+```
+
++ `resources/js/Pages/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import { Head, Link } from '@inertiajs/inertia-vue3';
+import FlashMessage from '@/Components/FlashMessage.vue'; // 追加
+
+defineProps({
+  items: Array,
+})
+</script>
+
+  <template>
+
+  <Head title="商品一覧" />
+
+  <BreezeAuthenticatedLayout>
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        商品一覧
+      </h2>
+    </template>
+
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white border-b border-gray-200">
+            <section class="text-gray-600 body-font">
+              <div class="container px-5 py-8 mx-auto">
+                <!-- 追加 -->
+                <FlashMessage />
+                <div class="flex pl-4 my-4 lg:w-2/3 w-full mx-auto">
+                  <Link as="button" :href="route('items.create')" class="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">商品登録</Link>
+                </div>
+                <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                  <table class="table-auto w-full text-left whitespace-no-wrap">
+                    <thead>
+                      <tr>
+                        <th
+                          class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100 rounded-tl rounded-bl">
+                          ID</th>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">
+                          商品名</th>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">
+                          価格</th>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">
+                          スタータス</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items" :key="item.id">
+                        <td class="px-4 py-3">{{ item.id }}</td>
+                        <td class="px-4 py-3">{{ item.name }}</td>
+                        <td class="px-4 py-3">{{ item.price }}</td>
+                        <td class="px-4 py-3 text-lg">{{ item.is_selling }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </BreezeAuthenticatedLayout>
+</template>
+```
