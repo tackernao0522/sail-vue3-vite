@@ -369,7 +369,7 @@ const storeItem = () => {
                                             <div class="p-2 w-full">
                                                 <div class="relative">
                                                     <label for="memo"
-                                                        class="leading-7 text-sm text-gray-600">Memo</label>
+                                                        class="leading-7 text-sm text-gray-600">メモ</label>
                                                     <textarea id="memo" name="memo" v-model="form.memo"
                                                         class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"></textarea>
                                                 </div>
@@ -377,14 +377,14 @@ const storeItem = () => {
                                             <div class="p-2 w-full">
                                                 <div class="relative">
                                                     <label for="price"
-                                                        class="leading-7 text-sm text-gray-600">価格</label>
+                                                        class="leading-7 text-sm text-gray-600">商品価格</label>
                                                     <input type="number" id="price" name="price" v-model="form.price"
                                                         class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
                                                 </div>
                                             </div>
                                             <div class="p-2 w-full">
                                                 <button
-                                                    class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">Button</button>
+                                                    class="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">商品登録</button>
                                             </div>
                                         </div>
                                     </div>
@@ -397,4 +397,80 @@ const storeItem = () => {
         </div>
     </BreezeAuthenticatedLayout>
 </template>
+```
+
+## 42. Items store
+
++ `$ php artisan make:request StoreItemRequest`を実行<br>
+
++ `app/Http/Requests/StoreItemRequest.php`を編集<br>
+
+```php:StoreItemRequest.php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreItemRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true; // 編集
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return [
+            //
+        ];
+    }
+}
+```
+
++ `app/Http/Controllers/ItemController.php`を編集<br>
+
+```php:ItemController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreItemRequest;
+use App\Models\Item;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class ItemController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Items/Index', ['items' => Item::select('id', 'name', 'price', 'is_selling')->get()]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Items/Create');
+    }
+
+    public function store(StoreItemRequest $request)
+    {
+        Item::create([
+            'name' => $request->name,
+            'memo' => $request->memo,
+            'price' => $request->price,
+        ]);
+
+        return to_route('items.index');
+    }
+}
 ```
