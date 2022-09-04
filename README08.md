@@ -1,9 +1,91 @@
+## 43. Items バリデーション
+
++ `app/Http/Requests/StoreItemRequest.php`を編集<br>
+
+```php:StoreItemRequest.php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreItemRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return [
+            'name' => ['required', 'max:255'],
+            'memo' => ['required', 'max:255'],
+            'price' => ['required', 'numeric'],
+        ];
+    }
+}
+```
+
+### コンポーネントを使ってみる
+
+```
+Pages/Auth/Login.vueを参考にコンポーネントを使ってみる
+
+Components/ValidationErrors.vue
+
+computed() ・・ Vueの機能
+リアルタイムで検知、計算する
+
+usePage()・・inertiaの機能
+マニュアルはShared data内
+頭にuseとつくのは合成関数（関わる機能をまとめてカプセル化した関数）
+```
+
++ [Shared data](https://inertiajs.com/shared-data) <br>
+
++ `$ touch resources/js/Components/ValidationErrors.vue`を実行<br>
+
++ `resources/js/Components/ValidationErrors.vue`を編集<br>
+
+```vue:ValidationErrors.vue
+<script setup>
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/inertia-vue3';
+const errors = computed(() => usePage().props.value.errors);
+const hasErrors = computed(() => Object.keys(errors.value).length > 0);
+</script>
+
+<template>
+  <div v-if="hasErrors">
+    <div class="font-medium text-red-600">問題が発生しました。</div>
+
+    <ul class="mt-3 list-disc list-inside text-sm text-red-600">
+      <li v-for="(error, key) in errors" :key="key">{{ error }}</li>
+    </ul>
+  </div>
+</template>
+```
+
++ `resources/js/Pages/Items/Create.vue`を編集<br>
+
+```vue:Create.vue
 <script setup>
 import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import { Inertia } from '@inertiajs/inertia';
 import { Head } from '@inertiajs/inertia-vue3';
 import { reactive } from 'vue';
-import BreezeValidationErrors from '@/Components/ValidationErrors.vue'
+import BreezeValidationErrors from '@/Components/ValidationErrors.vue' // 追加
 
 
 const form = reactive({
@@ -32,6 +114,7 @@ const storeItem = () => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
+                        <!-- 追加 -->
                         <BreezeValidationErrors class="mb-4" />
                         <section class="text-gray-600 body-font relative">
                             <form @submit.prevent="storeItem">
@@ -76,3 +159,4 @@ const storeItem = () => {
         </div>
     </BreezeAuthenticatedLayout>
 </template>
+```
