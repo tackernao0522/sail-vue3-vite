@@ -423,3 +423,295 @@ const showingNavigationDropdown = ref(false);
     </div>
 </template>
 ```
+
+## 37. ItemSeeder、ナビメニュー
+
++ `$ php artisan make:seeder ItemsTableSeeder`を実行<br>
+
++ `database/seeders/ItemsTableSeeder.php`を編集<br>
+
+```php:ItemsTableSeeder.php
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class ItemsTableSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        DB::table('items')->insert([
+            [
+                'name' => 'カット',
+                'memo' => 'カットの詳細',
+                'price' => 6000,
+            ],
+            [
+                'name' => 'カラー',
+                'memo' => 'カラーの詳細',
+                'price' => 8000,
+            ],
+            [
+                'name' => 'パーマ(カット込)',
+                'memo' => 'パーマ、カットの詳細',
+                'price' => 13000,
+            ],
+        ]);
+    }
+}
+```
+
++ `database/seeders/DatabaseSeeder.php`を編集<br>
+
+```php:DatabaseSeeder.php
+<?php
+
+namespace Database\Seeders;
+
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        // \App\Models\User::factory(10)->create();
+
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+
+        $this->call([
+            UsersTableSeeder::class,
+            ItemsTableSeeder::class,
+        ]);
+    }
+}
+```
+
++ `$ php artisan migrate:fresh --seed`を実行<br>
+
++ `$ mkdir resources/js/Pages/Items && touch $_/Index.vue`を実行<br>
+
++ `resources/js/Pages/Items/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import { Head } from '@inertiajs/inertia-vue3';
+</script>
+
+  <template>
+
+  <Head title="Dashboard" />
+
+  <BreezeAuthenticatedLayout>
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        Dashboard
+      </h2>
+    </template>
+
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white border-b border-gray-200">
+            You're logged in!
+          </div>
+        </div>
+      </div>
+    </div>
+  </BreezeAuthenticatedLayout>
+</template>
+```
+
++ `resources/js/Layouts/Authenticated.vue`を編集<br>
+
+```vue:Authenticated.vue
+<script setup>
+import { ref } from 'vue';
+import BreezeApplicationLogo from '@/Components/ApplicationLogo.vue';
+import BreezeDropdown from '@/Components/Dropdown.vue';
+import BreezeDropdownLink from '@/Components/DropdownLink.vue';
+import BreezeNavLink from '@/Components/NavLink.vue';
+import BreezeResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { Link } from '@inertiajs/inertia-vue3';
+
+const showingNavigationDropdown = ref(false);
+</script>
+
+<template>
+    <div>
+        <div class="min-h-screen bg-gray-100">
+            <nav class="bg-white border-b border-gray-100">
+                <!-- Primary Navigation Menu -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex">
+                            <!-- Logo -->
+                            <div class="shrink-0 flex items-center">
+                                <Link :href="route('dashboard')">
+                                    <BreezeApplicationLogo class="block w-10" />
+                                </Link>
+                            </div>
+
+                            <!-- Navigation Links -->
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <BreezeNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                                    Dashboard
+                                </BreezeNavLink>
+                                <!-- 追加 -->
+                                <BreezeNavLink :href="route('items.index')" :active="route().current('items.index')">
+                                    商品管理
+                                </BreezeNavLink>
+                                <!-- ここまで -->
+                            </div>
+                        </div>
+
+                        <div class="hidden sm:flex sm:items-center sm:ml-6">
+                            <!-- Settings Dropdown -->
+                            <div class="ml-3 relative">
+                                <BreezeDropdown align="right" width="48">
+                                    <template #trigger>
+                                        <span class="inline-flex rounded-md">
+                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                {{ $page.props.auth.user.name }}
+
+                                                <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <BreezeDropdownLink :href="route('logout')" method="post" as="button">
+                                            Log Out
+                                        </BreezeDropdownLink>
+                                    </template>
+                                </BreezeDropdown>
+                            </div>
+                        </div>
+
+                        <!-- Hamburger -->
+                        <div class="-mr-2 flex items-center sm:hidden">
+                            <button @click="showingNavigationDropdown = ! showingNavigationDropdown" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                    <path :class="{'hidden': showingNavigationDropdown, 'inline-flex': ! showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    <path :class="{'hidden': ! showingNavigationDropdown, 'inline-flex': showingNavigationDropdown }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Responsive Navigation Menu -->
+                <div :class="{'block': showingNavigationDropdown, 'hidden': ! showingNavigationDropdown}" class="sm:hidden">
+                    <div class="pt-2 pb-3 space-y-1">
+                        <BreezeResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                            Dashboard
+                        </BreezeResponsiveNavLink>
+                        <BreezeResponsiveNavLink :href="route('items.index')" :active="route().current('items.index')">
+                            商品管理
+                        </BreezeResponsiveNavLink>
+                    </div>
+
+                    <!-- Responsive Settings Options -->
+                    <div class="pt-4 pb-1 border-t border-gray-200">
+                        <div class="px-4">
+                            <div class="font-medium text-base text-gray-800">{{ $page.props.auth.user.name }}</div>
+                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
+                        </div>
+
+                        <div class="mt-3 space-y-1">
+                            <BreezeResponsiveNavLink :href="route('logout')" method="post" as="button">
+                                Log Out
+                            </BreezeResponsiveNavLink>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page Heading -->
+            <header class="bg-white shadow" v-if="$slots.header">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <slot name="header" />
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main>
+                <slot />
+            </main>
+        </div>
+    </div>
+</template>
+```
+
++ `app/Http/Controllers/ItemController.php`を編集<br>
+
+```php:ItemController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Item;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class ItemController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Items/Index', ['items' => Item::all()]);
+    }
+}
+```
+
++ `resources/js/Pages/Items/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import { Head } from '@inertiajs/inertia-vue3';
+</script>
+
+  <template>
+
+  <!-- 編集 -->
+  <Head title="商品一覧" />
+
+  <BreezeAuthenticatedLayout>
+    <template #header>
+      <!-- 編集 -->
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        商品一覧
+      </h2>
+    </template>
+
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-6 bg-white border-b border-gray-200">
+            You're logged in!
+          </div>
+        </div>
+      </div>
+    </div>
+  </BreezeAuthenticatedLayout>
+</template>
+```
