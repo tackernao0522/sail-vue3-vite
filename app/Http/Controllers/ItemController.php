@@ -40,4 +40,11 @@ class ItemController extends Controller
 
         return Inertia::render('Items/Show', ['item' => $item]);
     }
+
+    public function edit(Item $item)
+    {
+        // dd($item);
+
+        return Inertia::render('Items/Edit', ['item' => $item]);
+    }
 }
