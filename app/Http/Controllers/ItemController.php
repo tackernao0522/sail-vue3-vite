@@ -33,4 +33,11 @@ class ItemController extends Controller
                 'status' => 'success',
             ]);
     }
+
+    public function show(Item $item)
+    {
+        // dd($item);
+
+        return Inertia::render('Items/Show', ['item' => $item]);
+    }
 }
