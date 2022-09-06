@@ -1,10 +1,17 @@
+## 61. 郵便番号から住所取得
+
++ `$ npm i yubinbango-core2@^0.6.3`を実行<br>
+
++ `resources/js/Pages/Customers/Create.vue`を編集<br>
+
+```vue:Create.vue
 <script setup>
 import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import { Inertia } from '@inertiajs/inertia';
 import { Head } from '@inertiajs/inertia-vue3';
 import { reactive } from 'vue';
 import BreezeValidationErrors from '@/Components/ValidationErrors.vue'
-import { Core as YubinBangoCore } from "yubinbango-core2"
+import { Core as YubinBangoCore } from "yubinbango-core2" // 追加
 
 
 const form = reactive({
@@ -19,6 +26,7 @@ const form = reactive({
   memo: null,
 })
 
+// 追加
 const fetchAddress = () => {
   new YubinBangoCore(String(form.postcode), (value) => {
     // console.log(value)
@@ -83,6 +91,7 @@ const storeCustomer = () => {
                       <div class="p-2 w-full">
                         <div class="relative">
                           <label for="postcode" class="leading-7 text-sm text-gray-600">郵便番号</label>
+                          <!-- 編集 @change="fetchAddressを追加" -->
                           <input type="number" id="postcode" name="postcode" @change="fetchAddress" v-model="form.postcode"
                             class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
                         </div>
@@ -134,3 +143,4 @@ const storeCustomer = () => {
     </div>
   </BreezeAuthenticatedLayout>
 </template>
+```
