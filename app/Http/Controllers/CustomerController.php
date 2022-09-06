@@ -13,7 +13,7 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // $getTest = Customer::select(
         //     'id',
@@ -31,7 +31,7 @@ class CustomerController extends Controller
 
         // dd($getTest, $getPaginate);
 
-        $customers = Customer::searchCustomers('エツイ')
+        $customers = Customer::searchCustomers($request->search)
             ->select(
                 'id',
                 'name',
@@ -39,15 +39,10 @@ class CustomerController extends Controller
                 'tel'
             )->paginate(50);
 
-        dd($customers);
+        // dd($customers);
 
         return Inertia::render('Customers/Index', [
-            'customers' => Customer::select(
-                'id',
-                'name',
-                'kana',
-                'tel'
-            )->paginate(50)
+            'customers' => $customers
         ]);
     }
 
