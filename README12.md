@@ -282,3 +282,61 @@ onMounted(() => {
 ```
 
 + `検証ツールで確認してみる`<br>
+
+## 55. ページネーション コンポーネントの作成
+
++ `$ touch resources/js/Components/pagination.vue`を実行<br>
+
++ `resources/js/Components/Pagination.vue`を編集<br>
+
+```vue:Pagination.vue
+<script setup>
+import { Link } from '@inertiajs/inertia-vue3'; defineProps({ links: Array })
+</script>
+
+<template>
+  <div v-if="links.length > 3">
+    <div class="flex flex-wrap -mb-1">
+      <template v-for="(link, index) in links" :key="index">
+        <div v-if="link.url === null" class="mr-1 mb-1 px-4 py-3 text-sm leading-4
+  text-gray-400 border rounded" v-html="link.label" />
+        <Link v-else class="mr-1 mb-1 px-4 py-3 text-sm leading-4 border rounded
+  hover:bg-white focus:border-indigo-500 focus:text-indigo-500" :class="{ 'bg-blue-700 text-white': link.active }"
+          :href="link.url" v-html="link.label" />
+      </template>
+    </div>
+  </div>
+  21
+</template>
+```
+
++ `resources/js/Pages/Customers/Index.vue`を編集<br>
+
+```vue:Index.vue
+<script setup>
+import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import { Head, Link } from '@inertiajs/inertia-vue3';
+import FlashMessage from '@/Components/FlashMessage.vue';
+import Pagination from '../../Components/Pagination.vue';
+// import { onMounted } from 'vue';
+
+defineProps({
+  customers: Object,
+})
+
+// onMounted(() => {
+//   console.log(props.customers)
+//   console.log(props.customers.last_page)
+// })
+</script>
+
+<template>
+  <ul v-for="customer in customers.data" :key="customer.id">
+    <li>{{ customer.id }}</li>
+    <li>{{ customer.name }}</li>
+  </ul>
+  <Pagination class="mt-6" :links="customers.links"></Pagination>
+</template>
+```
+
++ `localhost/customers`にアクセスしてみる<br>
