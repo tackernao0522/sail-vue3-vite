@@ -14,5 +14,4 @@ import { Link } from '@inertiajs/inertia-vue3'; defineProps({ links: Array })
       </template>
     </div>
   </div>
-  21
 </template>
