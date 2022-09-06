@@ -15,13 +15,29 @@ class CustomerController extends Controller
      */
     public function index()
     {
+        // $getTest = Customer::select(
+        //     'id',
+        //     'name',
+        //     'kana',
+        //     'tel'
+        // )->get();
+
+        // $getPaginate = Customer::select(
+        //     'id',
+        //     'name',
+        //     'kana',
+        //     'tel'
+        // )->paginate(50);
+
+        // dd($getTest, $getPaginate);
+
         return Inertia::render('Customers/Index', [
             'customers' => Customer::select(
                 'id',
                 'name',
                 'kana',
                 'tel'
-            )->get()
+            )->paginate(50)
         ]);
     }
 
