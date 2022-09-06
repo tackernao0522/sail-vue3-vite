@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCustomerRequest;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -62,9 +63,25 @@ class CustomerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
-        //
+        Customer::create([
+            'name' => $request->name,
+            'kana' => $request->kana,
+            'tel' => $request->tel,
+            'email' => $request->email,
+            'postcode' => $request->postcode,
+            'address' => $request->address,
+            'birthday' => $request->birthday,
+            'gender' => $request->gender,
+            'memo' => $request->memo,
+        ]);
+
+        return to_route('customers.index')
+            ->with([
+                'message' => '登録しました。',
+                'satatus' => 'success',
+            ]);
     }
 
     /**
