@@ -18,6 +18,6 @@ class Item extends Model
 
     public function purchases()
     {
-        return $this->belongsToMany(Purchase::class)->withPivot('quatity');
+        return $this->belongsToMany(Purchase::class)->withPivot('quantity');
     }
 }
