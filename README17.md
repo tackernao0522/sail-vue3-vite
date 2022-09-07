@@ -252,3 +252,250 @@ const totalPrice = computed(() => {
   <!-- ここまで -->
 </template>
 ```
+
+## 70. 保存処理その1 POST通信
+
++ `$ php artisan make:request StorePurchaseRequest`を実行<br>
+
++ `resources/js/Pages/Purchases/Create.vue`を編集<br>
+
+```vue:Create.vue
+<script setup>
+import { getToday } from '@/common';
+import { Inertia } from '@inertiajs/inertia';
+import { computed, onMounted, reactive, ref } from 'vue';
+
+const props = defineProps({
+  'customers': Array,
+  'items': Array,
+})
+
+const itemList = ref([])
+
+onMounted(() => {
+  form.date = getToday()
+  props.items.forEach((item) => {
+    itemList.value.push({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 0
+    })
+  })
+})
+
+const quantity = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9",]
+
+// コントローラに渡す
+const form = reactive({
+  date: null,
+  customer_id: null,
+  status: true,
+  items: []
+})
+
+
+const totalPrice = computed(() => {
+  let total = 0
+  itemList.value.forEach((item) => {
+    total += item.price * item.quantity
+  })
+  return total
+})
+
+// 追加
+const storePurchase = () => {
+  itemList.value.forEach((item) => {
+    if (item.quantity > 0) { // 0より大きいものだけ追加
+      form.items.push({
+        id: item.id,
+        quantity: item.quantity
+      })
+    }
+  })
+  Inertia.post(route('purchases.store'), form)
+}
+// ここまで
+</script>
+
+<template>
+  <form @submit.prevent="storePurchase"> <!-- 追加 -->
+    日付<br>
+    <input type="date" name="date" v-model="form.date"><br>
+    会員名<br>
+    <select name="customer" v-model="form.customer_id">
+      <option v-for="customer in customers" :value="customer.id" :key="customer.id">
+        {{ customer.id }} : {{ customer.name }}
+      </option>
+    </select>
+    <br><br>
+
+    商品・サービス<br>
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>商品名</th>
+          <th>金額</th>
+          <th>数量</th>
+          <th>小計</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in itemList">
+          <td>{{ item.id }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.price }}</td>
+          <td>
+            <select name="quantity" v-model="item.quantity">
+              <option v-for="q in quantity" :value="q">{{ q }}</option>
+            </select>
+          </td>
+          <td>{{ item.price * item.quantity }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <!-- 編集 -->
+    合計 {{ totalPrice }} 円<br><br>
+    <button>登録する</button>
+    <!-- ここまで -->
+  </form> <!-- ここまで -->
+</template>
+```
+
+app/Http/Requests/StorePurchaseRequest.php`を編集<br>
+
+```php:StorePurchaseRequest.php
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StorePurchaseRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return [
+            'customer_id' => ['required']
+        ];
+    }
+}
+```
+
++ `app/Http/Controllers/PurchaseController.php`を編集<br>
+
+```php:PurchaseController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StorePurchaseRequest; // 追加
+use App\Models\Customer;
+use App\Models\Item;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class PurchaseController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $customers = Customer::select('id', 'name', 'kana')->get();
+        $items = Item::select('id', 'name', 'price')
+            ->where('is_selling', true)->get();
+
+        return Inertia::render('Purchases/Create', [
+            'customers' => $customers,
+            'items' => $items
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    // 編集
+    public function store(StorePurchaseRequest $request)
+    {
+        dd($request);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}
+```

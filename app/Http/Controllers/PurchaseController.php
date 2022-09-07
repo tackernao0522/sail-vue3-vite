@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePurchaseRequest;
 use App\Models\Customer;
 use App\Models\Item;
 use Illuminate\Http\Request;
@@ -42,9 +43,9 @@ class PurchaseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StorePurchaseRequest $request)
     {
-        //
+        dd($request);
     }
 
     /**
