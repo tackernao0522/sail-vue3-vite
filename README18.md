@@ -1,3 +1,10 @@
+## 72. 保存処理 その3 トランザクション追加
+
++ 2つのテーブルに保存するので途中でエラーなどあった場合はロールバックして戻せるようにする<br>
+
++ `app/Http/Controllers/PurchaseController.php`を編集<br>
+
+```php:PurchaseController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -7,7 +14,7 @@ use App\Models\Customer;
 use App\Models\Item;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB; // 追加
 use Inertia\Inertia;
 
 class PurchaseController extends Controller
@@ -47,6 +54,7 @@ class PurchaseController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
+        // 編集
         DB::beginTransaction();
 
         try {
@@ -68,6 +76,7 @@ class PurchaseController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
         }
+        // ここまで
     }
 
     /**
@@ -115,3 +124,4 @@ class PurchaseController extends Controller
         //
     }
 }
+```
