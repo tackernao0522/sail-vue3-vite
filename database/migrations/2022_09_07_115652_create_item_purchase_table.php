@@ -20,7 +20,7 @@ return new class extends Migration
                 ->onUpdate('cascade');
             $table->foreignId('purchase_id')
                 ->constrained()
-                ->onUpdate('cascase');
+                ->onUpdate('cascade');
             $table->integer('quantity');
             $table->timestamps();
         });
