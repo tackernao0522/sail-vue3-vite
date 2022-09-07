@@ -43,3 +43,42 @@ const form = reactive({
   <input type="date" name="date" v-model="form.date">
 </template>
 ```
+
+## 67. 顧客情報をv-forで表示
+
++ `resources/js/Pages/Purchases/Create.vue`を編集<br>
+
+```vue:Create.vue
+<script setup>
+import { getToday } from '@/common';
+import { onMounted, reactive } from 'vue';
+
+// 追加
+const props = defineProps({
+  'customers': Array
+})
+// ここまで
+
+onMounted(() => {
+  form.date = getToday()
+})
+
+const form = reactive({
+  date: null,
+  customer_id: null // 追加
+})
+</script>
+
+<template>
+  日付<br>
+  <!-- 編集 -->
+  <input type="date" name="date" v-model="form.date"><br>
+  会員名<br>
+  <select name="customer" v-model="form.customer_id">
+    <option v-for="customer in customers" :value="customer.id" :key="customer.id">
+      {{ customer.id }} : {{ customer.name }}
+    </option>
+  </select>
+  <!-- ここまで -->
+</template>
+```
