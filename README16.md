@@ -198,3 +198,111 @@ class DatabaseSeeder extends Seeder
 ```
 
 + `$ php artisan migrate:fresh --seed`を実行<br>
+
+## 63. ItemPurchase マイグレーション・リレーション
+
++ `$ php artisan make:migration create_item_purchase_table --create=item_purchase`を実行<br>
+
++ `database/migration/create_item_purchase_table.php`を編集<br>
+
+```php:create_item_purchase_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('item_purchase', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('item_id')
+                ->constrained()
+                ->onUpdate('cascade');
+            $table->foreignId('purchase_id')
+                ->constrained()
+                ->onUpdate('cascase');
+            $table->integer('quantity');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('item_purchase');
+    }
+};
+```
+
++ `app/Models/Purchase.php`を編集<br>
+
+```php:Purchase.php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\Customer;
+
+class Purchase extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'customer_id',
+        'status',
+    ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    // 追加
+    public function items()
+    {
+        return $this->belongsToMany(Item::class)->withPivot('quantity');
+    }
+}
+```
+
++ `app/Models/Item.php`を編集<br>
+
+```php:Item.php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Item extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'memo',
+        'price',
+        'is_selling'
+    ];
+
+    public function purchases()
+    {
+        return $this->belongsToMany(Purchase::class)->withPivot('quatity');
+    }
+}
+```
