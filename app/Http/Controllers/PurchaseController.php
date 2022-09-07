@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePurchaseRequest;
 use App\Models\Customer;
 use App\Models\Item;
+use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -45,7 +46,20 @@ class PurchaseController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
-        dd($request);
+        // dd($request);
+        $purchase = Purchase::create([
+            'customer_id' => $request->customer_id,
+            'status' => $request->status,
+        ]);
+
+        foreach ($request->items as $item) {
+            $purchase->items()->attach($purchase->id, [
+                'item_id' => $item['id'],
+                'quantity' => $item['quantity']
+            ]);
+        }
+
+        return to_route('dashboard');
     }
 
     /**
