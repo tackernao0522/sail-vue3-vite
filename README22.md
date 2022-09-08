@@ -1,10 +1,17 @@
+## 83. 購入日の表示変更（dayjs)
+
++ `$ npm i dayjs@1.11.5 --save`を実行<br>
+
++ `resources/js/Pages/Purchases/Index.vue`を編集<br>
+
+```vue:Index.vue
 <script setup>
 import { onMounted } from 'vue'
 import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import { Head, Link } from '@inertiajs/inertia-vue3';
 import FlashMessage from '@/Components/FlashMessage.vue'
 import Pagination from '@/Components/Pagination.vue'
-import dayjs from 'dayjs'
+import dayjs from 'dayjs' // 追加
 
 const props = defineProps({
   orders: Object
@@ -68,7 +75,9 @@ onMounted(() => {
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ order.customer_name }}</td>
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ order.total }}</td>
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ order.status }}</td>
+                        <!-- 編集 -->
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ dayjs(order.created_at).format('YYYY-MM-DD HH:mm:ss') }}</td>
+                        <!-- ここまで -->
                       </tr>
                     </tbody>
                   </table>
@@ -83,3 +92,4 @@ onMounted(() => {
     </div>
   </BreezeAuthenticatedLayout>
 </template>
+```
