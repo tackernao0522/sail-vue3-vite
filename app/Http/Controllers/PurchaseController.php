@@ -19,7 +19,21 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        dd(Order::paginate(50));
+        // dd(Order::paginate(50));
+
+        // 合計
+        $orders = Order::groupBy('id')
+            ->selectRaw(
+                'id,
+                customer_name,
+                sum(subtotal) as total, status, created_at'
+            )->paginate(50);
+
+        // dd($orders);
+
+        return Inertia::render('Purchases/Index', [
+            'orders' => $orders
+        ]);
     }
 
     /**
