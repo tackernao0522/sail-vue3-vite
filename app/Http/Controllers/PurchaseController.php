@@ -44,13 +44,14 @@ class PurchaseController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
+        // dd($request);
+
         DB::beginTransaction();
 
         try {
-            // dd($request);
             $purchase = Purchase::create([
                 'customer_id' => $request->customer_id,
-                'status' => $request->status,
+                'status' => $request->status
             ]);
 
             foreach ($request->items as $item) {
@@ -61,9 +62,10 @@ class PurchaseController extends Controller
             }
 
             DB::commit();
+
             return to_route('dashboard');
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollback();
         }
     }
 
