@@ -89,3 +89,19 @@ class DatabaseSeeder extends Seeder
 ```
 
 + `$ php artisan migrate:fresh --seed`を実行<br>
+
+## 80. joinで4つのテーブルを紐付けて合計金額を表示(mysql版)
+
+### 購買履歴一覧
+
++ 欲しい情報<br>
++ 購買id、顧客名、合計金額、ステータス、購入日<br>
+
++ サブクエリ<br>
+
+```
+4つのテーブルをjoin
+金額 * 数量 = 小計 を表示
+```
+
++ サブクエリで生成したテーブルをもとに group by で 売買毎の合計金額を表示<br>
