@@ -247,7 +247,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
-  console.log(props.items[0])
+  console.log(props.items)
   console.log(props.order[0].customer_name)
 })
 </script>
