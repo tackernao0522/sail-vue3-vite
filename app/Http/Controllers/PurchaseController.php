@@ -115,9 +115,9 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Purchase $purchase)
     {
-        //
+        $purchase = Purchase::find($purchase->id);
     }
 
     /**
