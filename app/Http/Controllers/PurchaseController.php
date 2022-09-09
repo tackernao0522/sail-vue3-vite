@@ -123,10 +123,10 @@ class PurchaseController extends Controller
 
         $items = [];
 
-        foreach($allItems as $allItem) {
+        foreach ($allItems as $allItem) {
             $quantity = 0;
-            foreach($purchase->items as $item){
-                if($allItem->id === $item->id) {
+            foreach ($purchase->items as $item) {
+                if ($allItem->id === $item->id) {
                     $quantity = $item->pivot->quantity;
                 }
             }
@@ -138,7 +138,17 @@ class PurchaseController extends Controller
             ]);
         }
 
-        dd($items);
+        // dd($items);
+        $order = Order::groupBy('id')
+            ->where('id', $purchase->id)
+            ->selectRaw('id, customer_id,
+        customer_name, status, created_at')
+            ->get();
+
+        return Inertia::render('Purchases/Edit', [
+            'items' => $items,
+            'order' => $order
+        ]);
     }
 
     /**
