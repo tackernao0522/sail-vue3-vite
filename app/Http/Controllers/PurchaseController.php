@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePurchaseRequest;
+use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Item;
 use App\Models\Order;
 use App\Models\Purchase;
@@ -158,9 +159,9 @@ class PurchaseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePurchaseRequest $request, Purchase $purchase)
     {
-        //
+        dd($request, $purchase);
     }
 
     /**
