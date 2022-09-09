@@ -67,7 +67,18 @@ onMounted(() => {
                         </td>
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ order.customer_name }}</td>
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ order.total }}</td>
-                        <td class="border-b-2 border-gray-200 px-4 py-3">{{ order.status }}</td>
+                        <td class="border-b-2 border-gray-200 px-4 py-3">
+                          <div
+                            v-if="order.status == true"
+                            class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                            未キャンセル
+                          </div>
+                          <div
+                            v-if="order.status == false"
+                            class="w-full bg-gray-100 bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                            キャンセル済
+                          </div>
+                        </td>
                         <td class="border-b-2 border-gray-200 px-4 py-3">{{ dayjs(order.created_at).format('YYYY-MM-DD HH:mm:ss') }}</td>
                       </tr>
                     </tbody>
