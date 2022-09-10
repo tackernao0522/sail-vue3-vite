@@ -1,3 +1,127 @@
+# セクション7: データ分析
+
+```
+CRM(顧客管理システム)の機能の一つ
+沢山のデータを分析して視覚化する
+
+分析する方法は多数あるが今回は、
+日別、月別、年別、デシル分析、RFM分析を主に対応していく。
+```
+
+## 91. Analysisページ追加
+
++ `$ php artisan make:controller AnalysisController`を実行<br>
+
++ `routes/web.php
+
+```php:web.php
+<?php
+
+use App\Http\Controllers\AnalysisController; // 追加
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\InertiaTestController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PurchaseController;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::resource('items', ItemController::class)->middleware(['auth', 'verified']);
+
+Route::resource('customers', CustomerController::class)->middleware(['auth', 'verified']);
+
+Route::resource('purchases', PurchaseController::class)->middleware(['auth', 'verified']);
+
+Route::get('analysis', [AnalysisController::class, 'index'])->name('analysis'); // 追加
+
+Route::get('/inertia-test', function () {
+    return Inertia::render('InertiaTest');
+});
+
+Route::get('/component-test', function () {
+    return Inertia::render('ComponentTest');
+});
+
+Route::get('/inertia/index', [InertiaTestController::class, 'index'])->name('inertia.index');
+Route::get('/inertia/create', [InertiaTestController::class, 'create'])->name('inertia.create');
+Route::post('/inertia', [InertiaTestController::class, 'store'])->name('inertia.store');
+Route::get('/inertia/show/{id}', [InertiaTestController::class, 'show'])->name('inertia.show');
+Route::delete('/inertia/{id}', [InertiaTestController::class, 'delete'])->name('inertia.delete');
+
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+require __DIR__ . '/auth.php';
+```
+
++ `app/Http/Controllers/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+use function Termwind\render;
+
+class AnalysisController extends Controller
+{
+    public function index()
+    {
+        return Inertia::render('Analysis');
+    }
+}
+```
+
++ `$ cp resources/js/Pages/Dashboard.vue resources/js/Pages/Analysis.vue`を実行<br>
+
++ `resources/js/Pages/Analysis.vue`を編集<br>
+
+```vue:Analysis.vue
+<script setup>
+import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import { Head } from '@inertiajs/inertia-vue3';
+</script>
+
+<template>
+    <Head title="データ分析" />
+
+    <BreezeAuthenticatedLayout>
+        <template #header>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                データ分析
+            </h2>
+        </template>
+
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        You're logged in!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </BreezeAuthenticatedLayout>
+</template>
+```
+
++ `resources/js/Layouts/Authenticated.vue`を編集<br>
+
+```vue:Authenticated.vue
 <script setup>
 import { ref } from 'vue';
 import BreezeApplicationLogo from '@/Components/ApplicationLogo.vue';
@@ -45,6 +169,7 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('customers.index')">
                                     顧客管理
                                 </BreezeNavLink>
+                                <!-- 追加 -->
                                 <BreezeNavLink :href="route('analysis')"
                                     :active="route().current('analysis')">
                                     データ分析
@@ -122,6 +247,7 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('customers.index')">
                             顧客管理
                         </BreezeResponsiveNavLink>
+                        <!-- 追加 -->
                         <BreezeResponsiveNavLink :href="route('analysis')"
                             :active="route().current('analysis')">
                             データ分析
@@ -158,3 +284,4 @@ const showingNavigationDropdown = ref(false);
         </div>
     </div>
 </template>
+```
