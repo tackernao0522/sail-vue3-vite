@@ -285,3 +285,88 @@ const showingNavigationDropdown = ref(false);
     </div>
 </template>
 ```
+
+## 92. 期間を指定する
+
+```
+どの分析においても、何年何月何日から　何年何月何日 までという情報は必要
+```
+
++ `app/Models/Order.php`を編集<br>
+
+```php:Order.php
+<?php
+
+namespace App\Models;
+
+use App\Models\Scopes\Subtotal;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Order extends Model
+{
+    use HasFactory;
+
+    // グローバルスコープ
+    protected static function booted()
+    {
+        static::addGlobalScope(new Subtotal);
+    }
+
+    // 追加
+    // ローカルスコープ
+    public function scopeBetweenDate($query, $startDate = null, $endDate = null)
+    {
+        if (is_null($startDate) && is_null($endDate)) {
+            return $query;
+        }
+
+        if (!is_null($startDate) && is_null($endDate)) {
+            return $query->where('created_at', ">=", $startDate);
+        }
+
+        if (is_null($startDate) && !is_null($endDate)) {
+            return $query->where('created_at', '<=', $endDate);
+        }
+
+        if (!is_null($startDate) && !is_null($endDate)) {
+            return $query->where('created_at', '>=', $startDate)
+                ->where('created_at', '<=', $endDate);
+        }
+    }
+}
+```
+
++ `app/Http/Controllers/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+use function Termwind\render;
+
+class AnalysisController extends Controller
+{
+    public function index()
+    {
+        $startDate = '2022-08-01';
+        $endDate = '2022-8-31';
+
+        $period = Order::betweenDate($startDate, $endDate)
+            ->groupBy('id')
+            ->selectRaw('id, sum(subtotal) as total,
+        customer_name, status, created_at')
+            ->orderBy('created_at')
+            ->paginate(50);
+
+        dd($period);
+
+        return Inertia::render('Analysis');
+    }
+}
+```
