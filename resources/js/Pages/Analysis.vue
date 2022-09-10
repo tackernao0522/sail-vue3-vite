@@ -4,6 +4,7 @@ import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import { Head } from '@inertiajs/inertia-vue3';
 import axios from 'axios';
 import { onMounted, reactive } from 'vue';
+import Chart from '../Components/Chart.vue'
 
 
 onMounted(() => {
@@ -58,6 +59,8 @@ const getData = async () => {
                             <button
                                 class="mt-4 flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">分析する</button>
                         </form>
+
+                        <Chart />
 
                         <div v-show="data.data" class="lg:w-2/3 w-full mx-auto overflow-auto">
                             <table class="table-auto w-full text-left whitespace-no-wrap">
