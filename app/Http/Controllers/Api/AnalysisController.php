@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\AnalysisService;
+use App\Services\DecileService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -19,12 +20,16 @@ class AnalysisController extends Controller
             list($data, $labels, $totals) = AnalysisService::perDay($subQuery);
         }
 
-        if($request->type === 'perMonth') {
+        if ($request->type === 'perMonth') {
             list($data, $labels, $totals) = AnalysisService::perMonth($subQuery);
         }
 
-        if($request->type === 'perYear') {
+        if ($request->type === 'perYear') {
             list($data, $labels, $totals) = AnalysisService::perYear($subQuery);
+        }
+
+        if ($request->type === 'decile') {
+            list($data, $labels, $totals) = DecileService::decile($subQuery);
         }
 
         return response()->json([
