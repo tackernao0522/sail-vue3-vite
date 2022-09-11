@@ -1,3 +1,32 @@
+## 102. デシル分析1 解析毎にまとめて金額順にソートする
+
+```:html
+<h1>デシル・・ラテン語で10等分</h1>
+
+データを10分割してグループに分ける分析手法
+
+一般的に今日入金額に応じてグループ分け
+
+ex)
+上位グループの特典をアップ
+下位グループにDM送付
+```
+
+### デシル分析の流れ
+
+1. 購買ID毎にまとめる <br>
+2. 会員毎にまとめて購入金額順にソートする <br>
+3. 購入順に連番を振る <br>
+4. 全体の件数を数え、1/10の値や合計金額を取得 <br>
+5. 10分割しグループ毎に数字を振る <br>
+6. 各グループの合計金額・平均金額を表示 <br>
+7. 構成比を表示（おまけ） <br>
+
+※ Mysql8.0のWindow関数(ntile())が使えると4, 5をまとめられるけど今回はcaseでやることにする<br>
+
++ まずはテスト的に `app/Http/Controllers/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -35,6 +64,7 @@ class AnalysisController extends Controller
 
         // dd($data);
 
+        // 追加
         // 1. 購買ID毎にまとめる
         $subQuery = Order::betweenDate($startDate, $endDate)
             ->groupBy('id')
@@ -49,5 +79,7 @@ class AnalysisController extends Controller
         dd($subQuery);
 
         return Inertia::render('Analysis');
+        // ここまで
     }
 }
+```
