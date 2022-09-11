@@ -119,7 +119,7 @@ class AnalysisController extends Controller
         round(100 * totalPerGroup / @total, 1) as totalRatio
         ')->get();
 
-        dd($data);
+        // dd($data);
 
         return Inertia::render('Analysis');
     }
