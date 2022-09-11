@@ -97,9 +97,29 @@ class AnalysisController extends Controller
             when ? <= row_num and row_num < ? then 9
             when ? <= row_num and row_num < ? then 10
             end as decile
-        ", $bindValues)->get(); // SelectRaw第二引数にバインドしたい数値(配列)を入れる
+        ", $bindValues); // SelectRaw第二引数にバインドしたい数値(配列)を入れる
 
-        dd($subQuery);
+        // dd($subQuery);
+
+        // 6. グループ毎の合計・平均
+        $subQuery = DB::table($subQuery)
+            ->groupBy('decile')
+            ->selectRaw('decile,
+        round(avg(total)) as average, sum(total) as totalPerGroup');
+
+        // dd($subQuery);
+
+        // 7 構成比
+        DB::statement("set @total = ${total};");
+        $data = DB::table($subQuery)
+            ->selectRaw('
+        decile,
+        average,
+        totalPerGroup,
+        round(100 * totalPerGroup / @total, 1) as totalRatio
+        ')->get();
+
+        dd($data);
 
         return Inertia::render('Analysis');
     }
