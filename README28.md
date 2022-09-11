@@ -1,3 +1,51 @@
+## 99. 日別売上のグラフ表示
+
++ `app/Http/Controllers/Api/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+
+class AnalysisController extends Controller
+{
+    public function index(Request $request)
+    {
+        $subQuery = Order::betweenDate($request->startDate, $request->endDate);
+
+        if ($request->type === 'perDay') {
+            $subQuery->where('status', true)
+                ->groupBy('id')->selectRaw('SUM(subtotal) AS totalPerPerchase, DATE_FORMAT(created_at, "%Y%m%d") AS date')
+                ->groupBy('date');
+
+            $data = DB::table($subQuery)
+                ->groupBy('date')
+                ->selectRaw('date, sum(totalPerPerchase) as total')
+                ->get();
+
+            $labels = $data->pluck('date'); // 追加
+            $totals = $data->pluck('total'); // 追加
+        }
+
+        return response()->json([
+            'data' => $data,
+            'type' => $request->type,
+            'labels' => $labels, // 追加
+            'totals' => $totals // 追加
+        ], Response::HTTP_OK);
+    }
+}
+```
+
++ `resources/js/Pages/Analysis.vue`を編集<br>
+
+```vue:Analysis.vue
 <script setup>
 import { getToday } from '@/common';
 import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
@@ -32,8 +80,8 @@ const getData = async () => {
             .then((res) => {
                 // それぞれ const data = reactive({}) に入っていく
                 data.data = res.data.data
-                data.labels = res.data.labels
-                data.totals = res.data.totals
+                data.labels = res.data.labels // 追加
+                data.totals = res.data.totals // 追加
                 console.log(res.data)
             })
     } catch (e) {
@@ -63,9 +111,11 @@ const getData = async () => {
                                 class="mt-4 flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">分析する</button>
                         </form>
 
+                        <!-- 編集 -->
                         <div v-show="data.data">
                             <Chart :data="data" />
                         </div>
+                        <!-- ここまで -->
 
                         <div v-show="data.data" class="lg:w-2/3 w-full mx-auto overflow-auto">
                             <table class="table-auto w-full text-left whitespace-no-wrap">
@@ -94,3 +144,41 @@ const getData = async () => {
         </div>
     </BreezeAuthenticatedLayout>
 </template>
+```
+
++ `resources/js/Components/Chart.vue`を編集<br>
+
+```vue:Chart.vue
+<script setup>
+import { Chart, registerables } from "chart.js";
+import { BarChart } from "vue-chart-3";
+import { computed, reactive } from "vue" // 編集
+
+// 追加
+const props = defineProps({
+  'data': Object
+})
+
+const labels = computed(() => props.data.labels) // 追加
+const totals = computed(() => props.data.totals) // 追加
+
+Chart.register(...registerables);
+
+const barData = reactive({
+  labels: labels, // 編集
+  datasets: [
+    {
+      label: '売上',
+      data: totals, // 編集
+      backgroundColor: "rgb(75, 192, 192)",
+      tension: 0.1,
+    }]
+})
+</script>
+
+<template>
+  <div v-show="props.data"> <!-- 編集 -->
+    <BarChart :chartData="barData" />
+  </div>
+</template>
+```
