@@ -250,3 +250,227 @@ class AnalysisController extends Controller
     }
 }
 ```
+
+## 101. 月別・年別分析の追加
+
++ `app/Http/Controllers/Api/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Services\AnalysisService;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class AnalysisController extends Controller
+{
+    public function index(Request $request)
+    {
+        $subQuery = Order::betweenDate($request->startDate, $request->endDate);
+
+        if ($request->type === 'perDay') {
+            // 配列を受け取り変数に格納するため list() を使う
+            list($data, $labels, $totals) = AnalysisService::perDay($subQuery);
+        }
+
+        // 追加
+        if($request->type === 'perMonth') {
+            list($data, $labels, $totals) = AnalysisService::perMonth($subQuery);
+        }
+
+        if($request->type === 'perYear') {
+            list($data, $labels, $totals) = AnalysisService::perYear($subQuery);
+        }
+        // ここまで
+
+        return response()->json([
+            'data' => $data,
+            'type' => $request->type,
+            'labels' => $labels,
+            'totals' => $totals
+        ], Response::HTTP_OK);
+    }
+}
+```
+
++ `app/Services/AnalysisService.php`を編集<br>
+
+```php:AnalysisService.php
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\DB;
+
+class AnalysisService
+{
+  // 編集
+  public static function perDay($subQuery)
+  {
+    $query = $subQuery->where('status', true)
+      ->groupBy('id')->selectRaw('SUM(subtotal) AS totalPerPerchase, DATE_FORMAT(created_at, "%Y%m%d") AS date')
+      ->groupBy('date')->orderBy('date');
+
+    $data = DB::table($query)
+      ->groupBy('date')
+      ->selectRaw('date, sum(totalPerPerchase) as total')
+      ->get();
+
+    $labels = $data->pluck('date');
+    $totals = $data->pluck('total');
+
+    return [$data, $labels, $totals]; // 複数の変数を渡すので一旦配列に入れる
+  }
+
+  public static function perMonth($subQuery)
+  {
+    $query = $subQuery->where('status', true)
+      ->groupBy('id')
+      ->selectRaw('id, sum(subtotal) as totalPerPurchase,
+      DATE_FORMAT(created_at, "%Y%m") as date')
+      ->orderBy('created_at');
+
+    $data = DB::table($query)
+      ->groupBy('date')
+      ->selectRaw('date, sum(totalPerPurchase) as total')
+      ->get();
+
+    $labels = $data->pluck('date');
+    $totals = $data->pluck('total');
+
+    return [$data, $labels, $totals];
+  }
+
+  public static function perYear($subQuery)
+  {
+    $query = $subQuery->where('status', true)
+      ->groupBy('id')
+      ->selectRaw('id, SUM(subtotal) AS totalPerPerchase, DATE_FORMAT(created_at, "%Y") AS date')
+      ->orderBy('created_at');
+
+    $data = DB::table($query)
+      ->groupBy('date')
+      ->selectRaw('date, sum(totalPerPerchase) as total')
+      ->get();
+
+    $labels = $data->pluck('date');
+    $totals = $data->pluck('total');
+
+    return [$data, $labels, $totals];
+  }
+  // ここまで
+}
+```
+
++ `resources/js/Pages/Analysis.vue`を編集<br>
+
+```vue:Analysis.vue
+<script setup>
+import { getToday } from '@/common';
+import BreezeAuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import { Head } from '@inertiajs/inertia-vue3';
+import axios from 'axios';
+import { onMounted, reactive } from 'vue';
+import Chart from '../Components/Chart.vue'
+
+
+onMounted(() => {
+    form.startDate = getToday()
+    form.endDate = getToday()
+})
+
+const form = reactive({
+    startDate: null,
+    endDate: null,
+    type: 'perDay' // 仮で直入力
+})
+
+const data = reactive({})
+
+const getData = async () => {
+    try {
+        await axios.get('/api/analysis/', {
+            params: {
+                startDate: form.startDate,
+                endDate: form.endDate,
+                type: form.type
+            }
+        })
+            .then((res) => {
+                // それぞれ const data = reactive({}) に入っていく
+                data.data = res.data.data
+                data.labels = res.data.labels
+                data.totals = res.data.totals
+                console.log(res.data)
+            })
+    } catch (e) {
+        console.log(e.message)
+    }
+}
+</script>
+
+<template>
+
+    <Head title="データ分析" />
+
+    <BreezeAuthenticatedLayout>
+        <template #header>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                データ分析
+            </h2>
+        </template>
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <form @submit.prevent="getData">
+                            <!-- 追加 -->
+                            分析方法<br>
+                            <input type="radio" v-model="form.type" value="perDay" checked><span class="mr-2">日別</span>
+                            <input type="radio" v-model="form.type" value="perMonth"><span class="mr-2">月別</span>
+                            <input type="radio" v-model="form.type" value="perYear"><span class="mr-2">年別</span>
+                            <br>
+                            <!-- ここまで -->
+
+                            From: <input type="date" name="startDate" v-model="form.startDate">
+                            To: <input type="date" name="endDate" v-model="form.endDate"><br>
+                            <button
+                                class="mt-4 flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">分析する</button>
+                        </form>
+
+                        <div v-show="data.data">
+                            <Chart :data="data" />
+                        </div>
+
+                        <div v-show="data.data" class="lg:w-2/3 w-full mx-auto overflow-auto">
+                            <table class="table-auto w-full text-left whitespace-no-wrap">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100 rounded-tl rounded-bl">
+                                            年月日</th>
+                                        <th
+                                            class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">
+                                            金額</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in data.data" :key="item.date">
+                                        <td class="px-4 py-3">{{ item.date }}</td>
+                                        <td class="px-4 py-3">{{ item.total }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </BreezeAuthenticatedLayout>
+</template>
+```
