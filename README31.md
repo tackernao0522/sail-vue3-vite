@@ -1,3 +1,44 @@
+## 108. RFM分析1 概要 RFMそれぞれの情報を取得
+
+### デシル分析の弱点
+
+```
+検索期間が長期間・・
+過去は優良顧客だったけど現在は通っていない、
+というユーザーも含まれてしまう
+
+検索期間が短期間・・
+得られるデータが少ない
+定期的に購入する安定顧客が含まれず、
+一時的に大きな買い物をしたユーザーが有力と扱われる
+```
+
+### RFM分析について
+
+```
+Recency 最新購入日
+
+Frequency 購入回数
+
+Monetary 購入金額合計
+
+３つの軸に分けることで、
+1回の購入で高額のユーザー
+定期的に高額でない商品を購入しているユーザーはそれぞれ別のグループとして扱われる
+```
+
+### RFM分析の流れ
+
+1. 購買ID毎にまとめる<br>
+2. 会員毎にまとめて最終購入日、回数、合計金額を取得<br>
+3. RFMランクを仮設定する<br>
+4. 会員毎のRFMランクを計算する<br>
+5. ランク毎の数を計算する(3を再調整)<br>
+6. RとFで2次元で表示してみる<br>
+
++ `app/Http/Controllers/AnalysisController.php`を編集(テスト用)<br>
+
+```php:AnalysisController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -33,6 +74,7 @@ class AnalysisController extends Controller
 
         // dd($data);
 
+        // 追加
         // RFM分析
         // 1. 購買ID毎にまとめる
         $subQuery = Order::betweenDate($startDate, $endDate)
@@ -53,6 +95,7 @@ class AnalysisController extends Controller
         ')->get();
 
         dd($subQuery);
+        // ここまで
 
         return Inertia::render('Analysis');
     }
@@ -150,3 +193,4 @@ class AnalysisController extends Controller
         // dd($data);
     }
 }
+```
