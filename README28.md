@@ -182,3 +182,71 @@ const barData = reactive({
   </div>
 </template>
 ```
+
+## 100. サービスへの切り離し
+
++ `$ mkdir app/Services && touch $_/AnalysisService.php`を実行<br>
+
++ `app/Services/AnalysisService.php`を編集<br>
+
+```php:AnalysisService.php
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\DB;
+
+class AnalysisService
+{
+  public static function perDay($subQuery)
+  {
+    $query = $subQuery->where('status', true)
+      ->groupBy('id')->selectRaw('SUM(subtotal) AS totalPerPerchase, DATE_FORMAT(created_at, "%Y%m%d") AS date')
+      ->groupBy('date')->orderBy('date');
+
+    $data = DB::table($query)
+      ->groupBy('date')
+      ->selectRaw('date, sum(totalPerPerchase) as total')
+      ->get();
+
+    $labels = $data->pluck('date');
+    $totals = $data->pluck('total');
+
+    return [$data, $labels, $totals]; // 複数の変数を渡すので一旦配列に入れる
+  }
+}
+```
+
++ `app/Http/Controllers/Api/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Services\AnalysisService; // 追加
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class AnalysisController extends Controller
+{
+    public function index(Request $request)
+    {
+        $subQuery = Order::betweenDate($request->startDate, $request->endDate);
+
+        if ($request->type === 'perDay') {
+            // 配列を受け取り変数に格納するため list() を使う
+            list($data, $labels, $totals) = AnalysisService::perDay($subQuery); // 編集
+        }
+
+        return response()->json([
+            'data' => $data,
+            'type' => $request->type,
+            'labels' => $labels,
+            'totals' => $totals
+        ], Response::HTTP_OK);
+    }
+}
+```
