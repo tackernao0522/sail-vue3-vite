@@ -119,7 +119,7 @@ class AnalysisController extends Controller
             $rank--; // rankを1ずつ減らす
         }
 
-        dd($total, $eachCount, $rCount, $fCount, $mCount);
+        // dd($total, $eachCount, $rCount, $fCount, $mCount);
 
         // concatで文字列結合
         // 6. RとFで2次元で表示してみる
@@ -134,7 +134,7 @@ class AnalysisController extends Controller
             ->orderBy('rRank', 'desc')
             ->get();
 
-        dd($data);
+        // dd($data);
 
         return Inertia::render('Analysis');
     }
