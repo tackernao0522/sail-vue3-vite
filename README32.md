@@ -1,3 +1,18 @@
+## 110. RFM分析3 RとFの2次元でデータ取得
+
+### 分析結果イメージ
+
+|R|F5|F4|F3|F2|F1|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|5|10|||||
+|4|||20|||
+|3||||||
+|2||||||
+|1||||||
+
++ `app/Http/Controllers/AnalysisController.php`を編集<br>
+
+```php:AnalysisController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -103,6 +118,7 @@ class AnalysisController extends Controller
 
         // dd($total, $rCount, $fCount, $mCount);
 
+        // 追加
         // concatで文字列結合
         // 6. RとFで2次元で表示してみる
         $data = DB::table($subQuery)
@@ -117,6 +133,7 @@ class AnalysisController extends Controller
             ->get();
 
         dd($data);
+        // ここまで
 
         return Inertia::render('Analysis');
     }
@@ -214,3 +231,4 @@ class AnalysisController extends Controller
         // dd($data);
     }
 }
+```
