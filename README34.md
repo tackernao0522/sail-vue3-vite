@@ -1,3 +1,8 @@
+## 114. RFM分析結果を表で表示
+
++ `resources/js/Components/ResultTable.vue`を編集<br>
+
+```vue:ResultTable.vue
 <script setup>
 const props = defineProps(
   {
@@ -54,6 +59,7 @@ const props = defineProps(
     </table>
   </div>
 
+  <!-- 追加 -->
   <div v-if="data.type === 'rfm'" class="lg:w-2/3 w-full mx-auto overflow-auto">
     <h2 class="text-center text-2xl my-4">RFM 分析結果</h2>
     <div class="my-4 text-center">合計: {{ data.totals }} 人</div>
@@ -103,4 +109,6 @@ const props = defineProps(
       </tbody>
     </table>
   </div>
+  <!-- ここまで -->
 </template>
+```
