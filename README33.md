@@ -846,7 +846,7 @@ class AnalysisController extends Controller
 
         // 追加
         if ($request->type === 'rfm') {
-            list($totals, $data, $eachCount) = RFMService::rfm($subQuery, $request->rfmPrms);
+            list($data, $totals, $eachCount) = RFMService::rfm($subQuery, $request->rfmPrms);
 
             return response()->json([
                 'data' => $data,
