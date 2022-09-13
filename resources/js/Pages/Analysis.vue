@@ -69,11 +69,11 @@ const getData = async () => {
                     <div class="p-6 bg-white border-b border-gray-200">
                         <form @submit.prevent="getData">
                             分析方法<br>
-                            <input type="radio" v-model="form.type" value="perDay" checked><span class="mr-2">日別</span>
-                            <input type="radio" v-model="form.type" value="perMonth"><span class="mr-2">月別</span>
-                            <input type="radio" v-model="form.type" value="perYear"><span class="mr-2">年別</span>
-                            <input type="radio" v-model="form.type" value="decile"><span class="mr-2">デシル分析</span>
-                            <input type="radio" v-model="form.type" value="rfm"><span class="mr-2">RFM分析</span>
+                            <input type="radio" v-model="form.type" value="perDay" checked><span class="mr-4">日別</span>
+                            <input type="radio" v-model="form.type" value="perMonth"><span class="mr-4">月別</span>
+                            <input type="radio" v-model="form.type" value="perYear"><span class="mr-4">年別</span>
+                            <input type="radio" v-model="form.type" value="decile"><span class="mr-4">デシル分析</span>
+                            <input type="radio" v-model="form.type" value="rfm"><span class="mr-4">RFM分析</span>
                             <br>
 
                             From: <input type="date" name="startDate" v-model="form.startDate">
