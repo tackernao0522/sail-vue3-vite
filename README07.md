@@ -163,10 +163,10 @@ defineProps({
                     </thead>
                     <tbody>
                       <tr v-for="item in items" :key="item.id">
-                        <td class="px-4 py-3">{{ item.id }}</td>
-                        <td class="px-4 py-3">{{ item.name }}</td>
-                        <td class="px-4 py-3">{{ item.price }}</td>
-                        <td class="px-4 py-3 text-lg">{{ item.is_selling }}</td>
+                        <td class="border-b-2 px-4 py-3">{{ item.id }}</td> // classにborder-b2を追加
+                        <td class="border-b-2 px-4 py-3">{{ item.name }}</td> // classにborder-b2を追加
+                        <td class="border-b-2 px-4 py-3">{{ item.price }}</td> // classにborder-b2を追加
+                        <td class="border-b-2 px-4 py-3">{{ item.is_selling }}</td> // classにborder-b2を追加
                       </tr>
                     </tbody>
                   </table>
