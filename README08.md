@@ -61,9 +61,13 @@ usePage()・・inertiaの機能
 ```vue:ValidationErrors.vue
 <script setup>
 import { computed } from 'vue';
-import { usePage } from '@inertiajs/inertia-vue3';
-const errors = computed(() => usePage().props.value.errors);
-const hasErrors = computed(() => Object.keys(errors.value).length > 0);
+import { usePage } from '@inertiajs/inertia-vue3'; // 削除
+const errors = computed(() => usePage().props.value.errors); // 削除
+// 追加
+const props = defineProps({
+    errors: Object,
+})
+const hasErrors = computed(() => Object.keys(props.errors).length > 0); // 編集
 </script>
 
 <template>
@@ -71,7 +75,7 @@ const hasErrors = computed(() => Object.keys(errors.value).length > 0);
     <div class="font-medium text-red-600">問題が発生しました。</div>
 
     <ul class="mt-3 list-disc list-inside text-sm text-red-600">
-      <li v-for="(error, key) in errors" :key="key">{{ error }}</li>
+      <li v-for="(error, key) in props.errors" :key="key">{{ error }}</li> {/* 編集 */}
     </ul>
   </div>
 </template>
@@ -87,6 +91,10 @@ import { Head } from '@inertiajs/inertia-vue3';
 import { reactive } from 'vue';
 import BreezeValidationErrors from '@/Components/ValidationErrors.vue' // 追加
 
+// 追加
+defineProps({
+    errors: Object,
+})
 
 const form = reactive({
     name: null,
@@ -115,7 +123,7 @@ const storeItem = () => {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
                         <!-- 追加 -->
-                        <BreezeValidationErrors class="mb-4" />
+                        <BreezeValidationErrors class="mb-4" :errors="errors" />
                         <section class="text-gray-600 body-font relative">
                             <form @submit.prevent="storeItem">
                                 <div class="container px-5 py-8 mx-auto">
